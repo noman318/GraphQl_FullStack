@@ -9,14 +9,12 @@ const ProjectCard = ({ projectData }) => {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center">
             <h5 className="card-title">{projectData?.name}</h5>
-            <div className="m-3">
-              <a href={`/projects/${projectData.id}`} className="btn btn-light">
-                <FaEye style={{ marginRight: "15px" }} />
-                View
-              </a>
-            </div>
+            <a href={`/project/${projectData.id}`} className="btn btn-light">
+              <FaEye style={{ marginRight: "15px" }} />
+              View
+            </a>
           </div>
-          <p className="small mt-4">
+          <p className="small">
             Status: <strong>{projectData.status}</strong>
           </p>
         </div>

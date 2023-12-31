@@ -7,7 +7,18 @@ const EditProjectForm = ({ project }) => {
   //   console.log("project", project);
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(() => {
+    switch (project.status) {
+      case "Not Started":
+        return "new";
+      case "In Progress":
+        return "progress";
+      case "Completed":
+        return "completed";
+      default:
+        throw new Error(`Unknown Status provided: ${project.status}`);
+    }
+  });
   const [updateProject] = useMutation(UPDATE_PROJECT, {
     variables: { id: project.id, name, description, status },
     refetchQueries: [

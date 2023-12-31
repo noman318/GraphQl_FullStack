@@ -10,7 +10,7 @@ import {
 import Client from "../models/Client.model.js";
 import Project from "../models/Project.model.js";
 
-const ClienType = new GraphQLObjectType({
+const ClientType = new GraphQLObjectType({
   name: "Client",
   fields: () => ({
     id: { type: GraphQLID },
@@ -28,7 +28,7 @@ const ProjectType = new GraphQLObjectType({
     description: { type: GraphQLString },
     status: { type: GraphQLString },
     client: {
-      type: ClienType,
+      type: ClientType,
       resolve(parent, args) {
         return Client.findById(parent.clientId);
       },
@@ -54,13 +54,13 @@ const RootQuery = new GraphQLObjectType({
       },
     },
     clients: {
-      type: new GraphQLList(ClienType),
+      type: new GraphQLList(ClientType),
       resolve() {
         return Client.find({});
       },
     },
     client: {
-      type: ClienType,
+      type: ClientType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         const { id } = args;
@@ -74,7 +74,7 @@ const mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: {
     addClient: {
-      type: ClienType,
+      type: ClientType,
       args: {
         name: { type: GraphQLNonNull(GraphQLString) },
         email: { type: GraphQLNonNull(GraphQLString) },
@@ -90,11 +90,29 @@ const mutation = new GraphQLObjectType({
       },
     },
     deleteClient: {
-      type: ClienType,
+      type: ClientType,
       args: { id: { type: GraphQLNonNull(GraphQLID) } },
-      resolve(parent, args) {
-        const { id } = args;
-        return Client.findByIdAndDelete(id);
+      async resolve(parent, args) {
+        try {
+          const projects = await Project.find({ clientId: args.id });
+          // console.log("projects", projects);
+          await Promise.all(
+            projects.map(async (project) => {
+              await project.deleteOne();
+            })
+          );
+
+          const deletedClient = await Client.findByIdAndDelete(args.id);
+          // console.log("deletedClient", deletedClient);
+
+          return deletedClient;
+        } catch (error) {
+          console.error(
+            "Error deleting client and associated projects:",
+            error
+          );
+          throw error; // Rethrow the error to be caught by GraphQL
+        }
       },
     },
 

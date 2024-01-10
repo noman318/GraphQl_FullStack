@@ -9,6 +9,7 @@ import {
 } from "graphql";
 import Client from "../models/Client.model.js";
 import Project from "../models/Project.model.js";
+import jwt from "jsonwebtoken";
 
 const ClientType = new GraphQLObjectType({
   name: "Client",
@@ -17,6 +18,14 @@ const ClientType = new GraphQLObjectType({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
     phone: { type: GraphQLString },
+    password: { type: GraphQLString },
+  }),
+});
+
+const LoginType = new GraphQLObjectType({
+  name: "Login",
+  fields: () => ({
+    token: { type: GraphQLString },
   }),
 });
 
@@ -87,6 +96,54 @@ const mutation = new GraphQLObjectType({
           phone: args.phone,
         });
         return client.save();
+      },
+    },
+    registerClient: {
+      type: ClientType,
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+        email: { type: GraphQLNonNull(GraphQLString) },
+        phone: { type: GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLNonNull(GraphQLString) },
+      },
+      async resolve(parent, args) {
+        const { name, email, phone, password } = args;
+        const user = await Client.findOne({ email });
+        if (user) {
+          throw new Error("Client with this email already exist");
+        }
+        const client = new Client({
+          name,
+          email,
+          phone,
+          password,
+        });
+        return client.save();
+      },
+    },
+    loginClient: {
+      type: LoginType,
+      args: {
+        email: { type: GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLNonNull(GraphQLString) },
+      },
+      async resolve(parent, args) {
+        const { email, password } = args;
+        try {
+          const userData = await Client.findOne({ email }).select("-__v");
+          if (userData && userData.matchPassword(password)) {
+            const jwtToken = jwt.sign(
+              { userId: userData._id },
+              process.env.JWT_SECRET || "Noman123"
+            );
+            return { token: jwtToken };
+          } else {
+            throw new Error("Invalid E-mail or password");
+          }
+        } catch (error) {
+          console.log("error", error);
+          throw new Error("Internal Server Error");
+        }
       },
     },
     deleteClient: {

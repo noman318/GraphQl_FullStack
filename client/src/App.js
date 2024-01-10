@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomeScreen from "./pages/HomeScreen";
 import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
+import Login from "./pages/Login";
+import RegisterForm from "./pages/RegisterForm";
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -38,6 +40,8 @@ function App() {
           <div className="container">
             <Routes>
               <Route path="/" element={<HomeScreen />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<RegisterForm />} />
               <Route path="/project/:id" element={<Projects />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

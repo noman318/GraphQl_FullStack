@@ -19,6 +19,7 @@ const ClientType = new GraphQLObjectType({
     email: { type: GraphQLString },
     phone: { type: GraphQLString },
     password: { type: GraphQLString },
+    token: { type: GraphQLString },
   }),
 });
 
@@ -130,19 +131,28 @@ const mutation = new GraphQLObjectType({
       async resolve(parent, args) {
         const { email, password } = args;
         try {
-          const userData = await Client.findOne({ email }).select("-__v");
-          if (userData && userData.matchPassword(password)) {
+          let user = await Client.findOne({ email }).select(
+            "_id name email password phone"
+          );
+          // console.log("user", user);
+          // console.log("passwordMatching", user.matchPassword(password));
+          // if (user && user.matchPassword(password)) {
+          if (user && (await user.matchPassword(password))) {
+            // let { _id, name, email, phone } = user;
+            // const updatedUser = { _id, name, email, phone };
+            // console.log("updatedUser", updatedUser);
+            const newUser = user.toObject();
+            delete newUser.password;
+            const stringifyData = JSON.stringify(newUser);
             const jwtToken = jwt.sign(
-              { userId: userData._id },
+              stringifyData,
               process.env.JWT_SECRET || "Noman123"
             );
-            return { token: jwtToken };
-          } else {
-            throw new Error("Invalid E-mail or password");
+            return { token: jwtToken, user };
           }
+          throw Error("Invalid Email or Password");
         } catch (error) {
-          console.log("error", error);
-          throw new Error("Internal Server Error");
+          return error;
         }
       },
     },

@@ -20,6 +20,7 @@ const clientSchema = new Mongoose.Schema({
 });
 
 clientSchema.methods.matchPassword = async function (enteredPassword) {
+  // console.log("enteredPassword", enteredPassword, this.password);
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

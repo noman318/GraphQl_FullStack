@@ -13,10 +13,10 @@ const ADD_CLIENTS = gql`
 
 const REGISTER_USER = gql`
   mutation registerClient(
-    $name: String
-    $email: String
-    $phone: String
-    $password: String
+    $name: String!
+    $email: String!
+    $phone: String!
+    $password: String!
   ) {
     registerClient(
       name: $name
@@ -33,7 +33,7 @@ const REGISTER_USER = gql`
 `;
 
 const LOGIN_USER = gql`
-  mutation loginClient($email: String, $password: String) {
+  mutation loginClient($email: String!, $password: String!) {
     loginClient(email: $email, password: $password) {
       token
     }

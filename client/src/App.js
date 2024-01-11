@@ -32,6 +32,8 @@ const client = new ApolloClient({
 });
 
 function App() {
+  const localData = localStorage?.getItem("graphQl_token");
+
   return (
     <>
       <ApolloProvider client={client}>
@@ -39,11 +41,20 @@ function App() {
           <Header />
           <div className="container">
             <Routes>
-              <Route path="/" element={<HomeScreen />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<RegisterForm />} />
-              <Route path="/project/:id" element={<Projects />} />
-              <Route path="*" element={<NotFound />} />
+              {localData ? (
+                <>
+                  <Route path="/" element={<HomeScreen />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<RegisterForm />} />
+                  <Route path="/project/:id" element={<Projects />} />
+                  <Route path="*" element={<NotFound />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<RegisterForm />} />
+                </>
+              )}
             </Routes>
           </div>
         </Router>

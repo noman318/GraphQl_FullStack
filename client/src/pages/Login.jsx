@@ -11,23 +11,51 @@ const Login = () => {
   const [signInUser, { loading }] = useMutation(LOGIN_USER, {
     variables: { email, password },
   });
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log("submitted");
+  //   if (email === "" || password === "") {
+  //     return alert("Fill all the Fields to Sign In");
+  //   }
+  //   let { data } = await signInUser(email, password);
+  //   let token = { data: data.loginClient.token }.data;
+  //   // console.log("token", token);
+  //   localStorage.setItem("graphQl_token", JSON.stringify(token));
+  //   setEmail("");
+  //   setPassword("");
+  //   alert("Signed In Successfully");
+  //   setTimeout(() => {
+  //     navigate("/");
+  //   }, 2000);
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("submitted");
+
     if (email === "" || password === "") {
       return alert("Fill all the Fields to Sign In");
     }
-    let { data } = await signInUser(email, password);
-    let token = { data: data.loginClient.token }.data;
-    // console.log("token", token);
-    localStorage.setItem("graphQl_token", JSON.stringify(token));
-    setEmail("");
-    setPassword("");
-    alert("Signed In Successfully");
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+
+    try {
+      let { data } = await signInUser(email, password);
+      let token = { data: data.loginClient.token }.data;
+      localStorage.setItem("graphQl_token", JSON.stringify(token));
+      setEmail("");
+      setPassword("");
+      alert("Signed In Successfully");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } catch (error) {
+      if (error.message === "Invalid Email or Password") {
+        alert("Invalid Email or Password");
+      } else {
+        console.error("An error occurred:", error.message);
+        alert("An error occurred during sign-in");
+      }
+    }
   };
+
   //   console.log("email", typeof email);
   //   console.log("password", typeof password);
   return (

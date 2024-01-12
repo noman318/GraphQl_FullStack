@@ -143,6 +143,9 @@ const mutation = new GraphQLObjectType({
             // console.log("updatedUser", updatedUser);
             const newUser = user.toObject();
             delete newUser.password;
+            delete newUser.phone;
+            // console.log("newUser", newUser);
+
             const stringifyData = JSON.stringify(newUser);
             const jwtToken = jwt.sign(
               stringifyData,

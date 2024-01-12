@@ -15,34 +15,73 @@ const RegisterForm = () => {
     variables: { name, email, password, phone },
   });
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log("submitted");
+  //   if (
+  //     email === "" ||
+  //     password === "" ||
+  //     name === "" ||
+  //     phone === "" ||
+  //     confirmPassword === "" ||
+  //     password === confirmPassword
+  //   ) {
+  //     return alert(
+  //       "Please fill all the required details to Register into the Portal"
+  //     );
+  //   }
+  //   let { data } = await registerClient(email, password);
+  //   // console.log("data", data.registerClient);
+
+  //   alert("Registered User Successfully");
+  //   setEmail("");
+  //   setName("");
+  //   setPhone("");
+  //   setConfirmPassword("");
+  //   setPassword("");
+  //   setTimeout(() => {
+  //     navigate("/");
+  //   }, 2000);
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("submitted");
+
     if (
       email === "" ||
       password === "" ||
       name === "" ||
       phone === "" ||
       confirmPassword === "" ||
-      password === confirmPassword
+      password !== confirmPassword
     ) {
       return alert(
-        "Please fill all the required details to Register into the Portal"
+        "Please fill all the required details and ensure that passwords match to register into the Portal"
       );
     }
-    let { data } = await registerClient(email, password);
-    // console.log("data", data.registerClient);
 
-    alert("Registered User Successfully");
-    setEmail("");
-    setName("");
-    setPhone("");
-    setConfirmPassword("");
-    setPassword("");
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+    try {
+      let { data } = await registerClient(email, password);
+      // console.log("data", data.registerClient);
+      alert("Registered User Successfully");
+      setEmail("");
+      setName("");
+      setPhone("");
+      setConfirmPassword("");
+      setPassword("");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (error) {
+      if (error.message === "Client with this email already exist") {
+        alert("Client with this email already exist");
+      } else {
+        console.error("An error occurred:", error.message);
+        alert("An error occurred during registration");
+      }
+    }
   };
+
   return (
     <form onSubmit={handleSubmit} className="w-50">
       <div className="row mb-3">
